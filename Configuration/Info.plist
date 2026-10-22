@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>en</string>
+
+    <key>CFBundleDisplayName</key>
+    <string>SCOPE Capture</string>
+
+    <key>CFBundleExecutable</key>
+    <string>$(EXECUTABLE_NAME)</string>
+
+    <key>CFBundleIdentifier</key>
+    <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+
+    <key>CFBundleName</key>
+    <string>$(PRODUCT_NAME)</string>
+
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+
+    <key>CFBundleShortVersionString</key>
+    <string>$(MARKETING_VERSION)</string>
+
+    <key>CFBundleVersion</key>
+    <string>$(CURRENT_PROJECT_VERSION)</string>
+
+    <key>LSRequiresIPhoneOS</key>
+    <true/>
+
+    <key>NSBluetoothAlwaysUsageDescription</key>
+    <string>SCOPE uses Bluetooth to discover and connect to your research sensor device and inspect the data it transmits.</string>
+
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Record coordinates and location accuracy only when you select Location for a research session. Location data stays on this device until you export it.</string>
+
+    <key>NSMotionUsageDescription</key>
+    <string>Record selected motion, step, and relative-altitude measurements for research sessions that you start. Measurements are saved on this device and shared only when you export them.</string>
+
+    <key>ResearchPublisherName</key>
+    <string></string>
+
+    <key>ResearchPrivacyPolicyURL</key>
+    <string></string>
+
+    <key>ResearchSupportURL</key>
+    <string></string>
+
+    <key>ResearchTermsURL</key>
+    <string></string>
+
+    <key>UIApplicationSceneManifest</key>
+    <dict>
+        <key>UIApplicationSupportsMultipleScenes</key>
+        <false/>
+    </dict>
+
+    <key>UILaunchScreen</key>
+    <dict/>
+
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+        <string>UIInterfaceOrientationLandscapeLeft</string>
+        <string>UIInterfaceOrientationLandscapeRight</string>
+    </array>
+</dict>
+</plist>

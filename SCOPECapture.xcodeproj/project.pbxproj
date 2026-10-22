@@ -1,0 +1,325 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		29AE9E403F00CD4DD1DFF9E8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 795A02A63DC9C1E86758E98F /* Assets.xcassets */; };
+		641AF444305CB458003054ED /* BluetoothSetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641AF443305CB458003054ED /* BluetoothSetup.swift */; };
+		641AF446305CB4B7003054ED /* ResearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641AF445305CB4B7003054ED /* ResearchView.swift */; };
+		641AF44830619D8B003054ED /* ScopeExperience.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641AF44730619D8B003054ED /* ScopeExperience.swift */; };
+		78A9A75A421A5DC749206A6D /* Sources/App/AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1564F1D0EFAC8F18D6AC93F /* Sources/App/AppModel.swift */; };
+		7B7902F41865FD5DBB97A49F /* Sources/Core/Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2022675C702938702DF9FFC0 /* Sources/Core/Core.swift */; };
+		8445EE0FC6D703A64A8C2C84 /* Sources/App/ExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 986C43265860849FCDAD14B8 /* Sources/App/ExportView.swift */; };
+		962298AC3A049B155B6C6393 /* Configuration/PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A7C92D6D214077B78147B0B6 /* Configuration/PrivacyInfo.xcprivacy */; };
+		9F42B79E0EA2B8BEAF2C137C /* Sources/Core/SessionArchive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DE1F86296ADC826A72ABBDE /* Sources/Core/SessionArchive.swift */; };
+		AD9B5D9384F04F13C02FD3A0 /* Sources/App/SCOPECaptureApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7443FFF404D7A4A788F890B0 /* Sources/App/SCOPECaptureApp.swift */; };
+		B7C4C8A60FA993C2701046D5 /* Sources/App/SensorsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE6CADF751E2D1450B986D0 /* Sources/App/SensorsView.swift */; };
+		B9271E495D8EEE896D6FA1ED /* Sources/App/SensorHub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56CEE783F3A6177BD28D7853 /* Sources/App/SensorHub.swift */; };
+		C2859EB31E38825B95F10BA0 /* Sources/App/Views.swift in Sources */ = {isa = PBXBuildFile; fileRef = A51AC726F7E617CDEF5208E2 /* Sources/App/Views.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		06271BAF49532C879AA3C58B /* Configuration/Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Configuration/Info.plist; sourceTree = "<group>"; };
+		2022675C702938702DF9FFC0 /* Sources/Core/Core.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/Core/Core.swift; sourceTree = "<group>"; };
+		4CE6CADF751E2D1450B986D0 /* Sources/App/SensorsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/App/SensorsView.swift; sourceTree = "<group>"; };
+		56CEE783F3A6177BD28D7853 /* Sources/App/SensorHub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/App/SensorHub.swift; sourceTree = "<group>"; };
+		641AF443305CB458003054ED /* BluetoothSetup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothSetup.swift; sourceTree = "<group>"; };
+		641AF445305CB4B7003054ED /* ResearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResearchView.swift; sourceTree = "<group>"; };
+		641AF44730619D8B003054ED /* ScopeExperience.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScopeExperience.swift; sourceTree = "<group>"; };
+		7443FFF404D7A4A788F890B0 /* Sources/App/SCOPECaptureApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/App/SCOPECaptureApp.swift; sourceTree = "<group>"; };
+		795A02A63DC9C1E86758E98F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		986C43265860849FCDAD14B8 /* Sources/App/ExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/App/ExportView.swift; sourceTree = "<group>"; };
+		9DE1F86296ADC826A72ABBDE /* Sources/Core/SessionArchive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/Core/SessionArchive.swift; sourceTree = "<group>"; };
+		A51AC726F7E617CDEF5208E2 /* Sources/App/Views.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/App/Views.swift; sourceTree = "<group>"; };
+		A7C92D6D214077B78147B0B6 /* Configuration/PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Configuration/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		A8792157CB4F27FB949C035F /* SCOPE Capture.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; path = "SCOPE Capture.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C1564F1D0EFAC8F18D6AC93F /* Sources/App/AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/App/AppModel.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E2AA269EB967A8853A258BFA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0A3E27B8CA818264D75C8D81 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A8792157CB4F27FB949C035F /* SCOPE Capture.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		0D6E4079E36703EBD37C0072 = {
+			isa = PBXGroup;
+			children = (
+				641AF445305CB4B7003054ED /* ResearchView.swift */,
+				641AF443305CB458003054ED /* BluetoothSetup.swift */,
+				641AF44730619D8B003054ED /* ScopeExperience.swift */,
+				C1564F1D0EFAC8F18D6AC93F /* Sources/App/AppModel.swift */,
+				986C43265860849FCDAD14B8 /* Sources/App/ExportView.swift */,
+				7443FFF404D7A4A788F890B0 /* Sources/App/SCOPECaptureApp.swift */,
+				56CEE783F3A6177BD28D7853 /* Sources/App/SensorHub.swift */,
+				4CE6CADF751E2D1450B986D0 /* Sources/App/SensorsView.swift */,
+				A51AC726F7E617CDEF5208E2 /* Sources/App/Views.swift */,
+				2022675C702938702DF9FFC0 /* Sources/Core/Core.swift */,
+				9DE1F86296ADC826A72ABBDE /* Sources/Core/SessionArchive.swift */,
+				A7C92D6D214077B78147B0B6 /* Configuration/PrivacyInfo.xcprivacy */,
+				795A02A63DC9C1E86758E98F /* Assets.xcassets */,
+				06271BAF49532C879AA3C58B /* Configuration/Info.plist */,
+				0A3E27B8CA818264D75C8D81 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		34A04005BCAF206EEC990BD9 /* SCOPE Capture */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1B672BF3DA427763BF644BE3 /* Build configuration list for PBXNativeTarget "SCOPE Capture" */;
+			buildPhases = (
+				878A52FC5FF6A57D50B7B870 /* Sources */,
+				E2AA269EB967A8853A258BFA /* Frameworks */,
+				41D311A605520FC7B8B9A980 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "SCOPE Capture";
+			productName = "SCOPE Capture";
+			productReference = A8792157CB4F27FB949C035F /* SCOPE Capture.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		244210E48437B6556980A702 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 2630;
+			};
+			buildConfigurationList = 76F8DEC3DFE0BDB465198890 /* Build configuration list for PBXProject "SCOPECapture" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 0D6E4079E36703EBD37C0072;
+			productRefGroup = 0A3E27B8CA818264D75C8D81 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				34A04005BCAF206EEC990BD9 /* SCOPE Capture */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		41D311A605520FC7B8B9A980 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				962298AC3A049B155B6C6393 /* Configuration/PrivacyInfo.xcprivacy in Resources */,
+				29AE9E403F00CD4DD1DFF9E8 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		878A52FC5FF6A57D50B7B870 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				641AF444305CB458003054ED /* BluetoothSetup.swift in Sources */,
+				78A9A75A421A5DC749206A6D /* Sources/App/AppModel.swift in Sources */,
+				8445EE0FC6D703A64A8C2C84 /* Sources/App/ExportView.swift in Sources */,
+				641AF44830619D8B003054ED /* ScopeExperience.swift in Sources */,
+				AD9B5D9384F04F13C02FD3A0 /* Sources/App/SCOPECaptureApp.swift in Sources */,
+				B9271E495D8EEE896D6FA1ED /* Sources/App/SensorHub.swift in Sources */,
+				B7C4C8A60FA993C2701046D5 /* Sources/App/SensorsView.swift in Sources */,
+				C2859EB31E38825B95F10BA0 /* Sources/App/Views.swift in Sources */,
+				641AF446305CB4B7003054ED /* ResearchView.swift in Sources */,
+				7B7902F41865FD5DBB97A49F /* Sources/Core/Core.swift in Sources */,
+				9F42B79E0EA2B8BEAF2C137C /* Sources/Core/SessionArchive.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		0B0C687DF8B6B8DC790B519C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				DEVELOPMENT_TEAM = NF75QFL6G3;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		6C7EFF6369083C8E1F2B1994 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 4;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Configuration/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.2;
+				PRODUCT_BUNDLE_IDENTIFIER = org.example.scope.capture;
+				PRODUCT_NAME = "SCOPE Capture";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		73EBF6644258C120893E685D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				DEVELOPMENT_TEAM = NF75QFL6G3;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+			};
+			name = Debug;
+		};
+		DD75E2CB1C510A828AC72D96 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 4;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_TESTABILITY = NO;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Configuration/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.2;
+				PRODUCT_BUNDLE_IDENTIFIER = org.example.scope.capture;
+				PRODUCT_NAME = "SCOPE Capture";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1B672BF3DA427763BF644BE3 /* Build configuration list for PBXNativeTarget "SCOPE Capture" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6C7EFF6369083C8E1F2B1994 /* Debug */,
+				DD75E2CB1C510A828AC72D96 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		76F8DEC3DFE0BDB465198890 /* Build configuration list for PBXProject "SCOPECapture" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				73EBF6644258C120893E685D /* Debug */,
+				0B0C687DF8B6B8DC790B519C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 244210E48437B6556980A702 /* Project object */;
+}

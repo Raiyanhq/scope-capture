@@ -1,0 +1,31 @@
+# macOS
+.DS_Store
+
+# Xcode build output and personal settings
+DerivedData/
+build/
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+
+# Swift Package Manager generated output
+.build/
+.swiftpm/
+
+# Credentials and local environment
+.env
+.env.*
+!.env.example
+*.p12
+*.mobileprovision
+*.provisionprofile
+
+# Local research recordings and exports
+ResearchSessions/
+ResearchExports/
+Session-*.zip
+segment_*.csv
+
+# PlatformIO generated output, if firmware is included later
+.pio/
