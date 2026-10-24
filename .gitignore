@@ -27,5 +27,23 @@ ResearchExports/
 Session-*.zip
 segment_*.csv
 
+# Local handoff documents
+/README_FIRST.md
+/READMEFirst.md
+/VALIDATION.md
+/RELEASE_CHECKLIST.md
+/UPDATE_GUIDE.md
+/ALL_COMPLETE_CODE.md
+/COMPLETE_REPLACEMENT_CODE.md
+/SCOPE_Complete_Replacement_Code.md
+/SCOPE_Bluetooth_Discovery_Code.md
+
+# Generated files and personal Xcode settings
+/.dist/
+/.verification/
+.DS_Store
+xcuserdata/
+*.xcuserstate
+
 # PlatformIO generated output, if firmware is included later
 .pio/
