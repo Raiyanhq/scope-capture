@@ -877,22 +877,35 @@ private struct ScopeSensorsScreen: View {
 private struct ScopeSessionsScreen: View {
     @EnvironmentObject private var model: AppModel
     @State private var query = ""
+    @State private var filter: LibraryFilter = .all
+    @State private var newestFirst = true
+    @State private var renameID: UUID?
+    @State private var renameText = ""
+    @State private var showRename = false
+    private enum LibraryFilter: String, CaseIterable, Identifiable {
+        case all = "All", shareable = "Exportable", review = "Review"
+        var id: String { rawValue }
+    }
 
     private var sessions: [ResearchSession] {
-        model.sessions.filter {
+        let search = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        return model.sessions.filter {
             $0.id != model.active?.id
+                && (filter == .all || (filter == .shareable && $0.state.exportable)
+                    || (filter == .review && ($0.needsReview || $0.state.recoverable)))
                 && (
-                    query.isEmpty
+                    search.isEmpty
                         || [
                             $0.experiment,
                             $0.participant,
                             $0.protocolCode ?? "",
-                            $0.id.uuidString
+                            $0.id.uuidString,
+                            ($0.externalFiles ?? []).map { $0.device.name }.joined(separator: " ")
                         ].contains {
-                            $0.localizedCaseInsensitiveContains(query)
+                            $0.localizedCaseInsensitiveContains(search)
                         }
                 )
-        }
+        }.sorted { newestFirst ? $0.startedAt > $1.startedAt : $0.startedAt < $1.startedAt }
     }
 
     var body: some View {
@@ -953,22 +966,59 @@ private struct ScopeSessionsScreen: View {
                     }
                     .padding(.vertical, 6)
                 }
+                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                    Button {
+                        renameID = session.id; renameText = session.experiment; showRename = true
+                    } label: { Label("Rename", systemImage: "pencil") }
+                    .tint(.teal).disabled(model.busy || model.active != nil)
+                    Button { Task { await model.export(session.id) } } label: {
+                        Label("Export", systemImage: "square.and.arrow.up")
+                    }
+                    .tint(.blue).disabled(model.busy || model.active != nil || !session.state.exportable)
+                }
             }
         }
         .overlay {
             if sessions.isEmpty && model.catalogIssues.isEmpty {
                 ContentUnavailableView(
-                    query.isEmpty ? "Your recordings live here" : "No results",
+                    model.sessions.isEmpty ? "Your recordings live here" : "No matching recordings",
                     systemImage: "waveform.path",
                     description: Text(
-                        query.isEmpty
+                        model.sessions.isEmpty
                             ? "Finish a recording to review and share it."
-                            : "Try another title or study code."
+                            : "Try another filter, title, study code or device name."
                     )
                 )
             }
         }
         .navigationTitle("Sessions")
+        .safeAreaInset(edge: .top, spacing: 0) {
+            Picker("Filter recordings", selection: $filter) {
+                ForEach(LibraryFilter.allCases) { Text($0.rawValue).tag($0) }
+            }
+            .pickerStyle(.segmented).padding(.horizontal, 20).padding(.vertical, 10)
+            .background(.bar)
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Button { newestFirst = true } label: {
+                        Label("Newest first", systemImage: newestFirst ? "checkmark" : "clock")
+                    }
+                    Button { newestFirst = false } label: {
+                        Label("Oldest first", systemImage: newestFirst ? "clock" : "checkmark")
+                    }
+                } label: { Image(systemName: "arrow.up.arrow.down") }
+                .accessibilityLabel("Sort recordings")
+            }
+        }
+        .alert("Rename session", isPresented: $showRename) {
+            TextField("Session name", text: $renameText)
+            Button("Cancel", role: .cancel) {}
+            Button("Save") {
+                if let id = renameID { Task { await model.rename(id, title: renameText) } }
+            }.disabled(renameText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || renameText.count > 120)
+        } message: { Text("Your exported ZIP will use this name.") }
         .searchable(text: $query, prompt: "Search recordings")
         .refreshable {
             await model.refresh()
