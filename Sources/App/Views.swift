@@ -80,8 +80,45 @@ private struct ScopeMetric: View {
     }
 }
 
+private struct ScopeDashboardIntro: View {
+    let ready: Bool
+    let sensorCount: Int
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            HStack {
+                Label("ON-DEVICE RESEARCH", systemImage: "waveform.path")
+                    .font(.caption.weight(.semibold)).tracking(1)
+                Spacer()
+                Image(systemName: "lock.shield").accessibilityLabel("Stored locally")
+            }
+            .foregroundStyle(.secondary)
+            Text("Your next\nobservation starts here.")
+                .font(.system(.largeTitle, design: .default, weight: .bold))
+                .fixedSize(horizontal: false, vertical: true)
+            HStack(spacing: 8) {
+                Image(systemName: ready ? "checkmark.circle.fill" : "slider.horizontal.3")
+                Text(ready ? "Ready · \(sensorCount) sensors selected" : "Choose sensors to get started")
+            }
+            .font(.subheadline.weight(.medium)).foregroundStyle(.tint)
+            HStack(spacing: 16) {
+                Label("Local storage", systemImage: "internaldrive")
+                Label("Named exports", systemImage: "square.and.arrow.up")
+            }
+            .font(.caption).foregroundStyle(.secondary)
+            .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(24).frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 24))
+        .overlay(alignment: .top) {
+            RoundedRectangle(cornerRadius: 2).fill(.tint).frame(width: 44, height: 3).padding(.top, 1)
+                .accessibilityHidden(true)
+        }
+    }
+}
+
 struct RootView: View {
     @EnvironmentObject private var model: AppModel
+    @EnvironmentObject private var wired: WiredAccessoryController
     @Environment(\.scenePhase) private var scenePhase
 
     @AppStorage(ScopeUI.agreementKey)
@@ -132,6 +169,10 @@ struct RootView: View {
                         )
                     }
                     .tag(3)
+
+                    NavigationStack { DevicesView() }
+                        .tabItem { Label("Devices", systemImage: "cable.connector") }
+                        .tag(4)
                 }
             } else {
                 NavigationStack {
@@ -154,7 +195,7 @@ struct RootView: View {
         .environmentObject(model.hub)
         .tint(ScopeUI.accent)
         .task {
-            if !(0...3).contains(model.selectedTab) {
+            if !(0...4).contains(model.selectedTab) {
                 model.selectedTab = 0
             }
 
@@ -162,6 +203,9 @@ struct RootView: View {
         }
         .onChange(of: scenePhase) { _, phase in
             model.sceneChanged(phase)
+            if phase != .active && (wired.capturing || wired.connectedID != nil) {
+                wired.stop(reason: "App left the foreground. Capture stopped; reconnect before continuing.")
+            }
         }
         .alert(item: $model.message) { item in
             Alert(
@@ -189,7 +233,6 @@ private struct ScopeRecordScreen: View {
 
     @State private var setup = false
     @State private var settings = false
-    @State private var externalDevice = false
     @State private var stop = false
     @State private var marker = false
     @State private var markerText = ""
@@ -201,7 +244,7 @@ private struct ScopeRecordScreen: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 20) {
                 if let session = model.active {
                     VStack(spacing: 18) {
                         Label(
@@ -224,7 +267,7 @@ private struct ScopeRecordScreen: View {
                                 .system(
                                     size: 64,
                                     weight: .light,
-                                    design: .rounded
+                                    design: .monospaced
                                 )
                             )
                             .monospacedDigit()
@@ -320,8 +363,19 @@ private struct ScopeRecordScreen: View {
                         .foregroundStyle(.orange)
                     }
                 } else {
-                   
-                    ScopeBrandHeader()
+                    ScopeDashboardIntro(ready: ready, sensorCount: sensors.enabled.count)
+
+                    HStack(spacing: 12) {
+                        Button { model.selectedTab = 3 } label: {
+                            Label("IMU research", systemImage: "waveform.path.ecg")
+                                .frame(maxWidth: .infinity, minHeight: 44)
+                        }
+                        Button { model.selectedTab = 4 } label: {
+                            Label("Devices", systemImage: "cable.connector")
+                                .frame(maxWidth: .infinity, minHeight: 44)
+                        }
+                    }
+                    .font(.subheadline.weight(.medium)).buttonStyle(.bordered)
 
                     Button {
                         model.selectedTab = 2
@@ -373,13 +427,14 @@ private struct ScopeRecordScreen: View {
                             title: "Available storage"
                         )
                     }
-                    .padding(.horizontal, 4)
+                    .padding(20)
+                    .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 20))
 
                     if let latest = model.sessions.first(
                         where: { $0.id != model.active?.id }
                     ) {
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("LATEST SESSION")
+                            Text("RECENT RECORDING")
                                 .font(.caption.weight(.semibold))
                                 .foregroundStyle(.secondary)
 
@@ -422,15 +477,15 @@ private struct ScopeRecordScreen: View {
             .padding(20)
         }
         .background(Color(uiColor: .systemGroupedBackground))
-        .navigationTitle("SCOPE")
+        .navigationTitle("SCOPE Capture")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Button {
-                    externalDevice = true
+                    model.selectedTab = 4
                 } label: {
                     Image(
-                        systemName: "antenna.radiowaves.left.and.right"
+                        systemName: "cable.connector"
                     )
                     .frame(minWidth: 44, minHeight: 44)
                 }
@@ -460,8 +515,8 @@ private struct ScopeRecordScreen: View {
                     ScopePrimaryButton(
                         title: !accepted
                             ? "Review & continue"
-                            : ready ? "New recording" : "Set up sensors",
-                        symbol: ready ? "plus" : "slider.horizontal.3",
+                            : ready ? "New session" : "Choose sensors",
+                        symbol: ready ? "record.circle" : "slider.horizontal.3",
                         busy: model.busy,
                         disabled: sensors.requesting != nil || !model.canStart
                     ) {
@@ -486,9 +541,6 @@ private struct ScopeRecordScreen: View {
             NavigationStack {
                 ScopePreferencesScreen()
             }
-        }
-        .sheet(isPresented: $externalDevice) {
-            BluetoothSetupView()
         }
         .confirmationDialog(
             "Finish this recording?",
@@ -935,6 +987,8 @@ private struct ScopeSessionScreen: View {
 
     @State private var deleting = false
     @State private var recovering = false
+    @State private var renaming = false
+    @State private var sessionName = ""
 
     private var session: ResearchSession? {
         model.sessions.first { $0.id == id }
@@ -1027,6 +1081,19 @@ private struct ScopeSessionScreen: View {
                         ScopeEvidenceScreen(session: session)
                     }
 
+                    if let external = session.externalFiles, !external.isEmpty {
+                        DisclosureGroup("External files · \(external.count)") {
+                            ForEach(external) { file in
+                                VStack(alignment: .leading, spacing: 5) {
+                                    Text(file.originalName).font(.subheadline.weight(.medium))
+                                    Text("\(file.device.name) · \(ScopeUI.bytes(file.bytes))")
+                                        .font(.caption).foregroundStyle(.secondary)
+                                    Text("SHA-256: \(file.sha256)").font(.caption2.monospaced()).textSelection(.enabled)
+                                }.padding(.vertical, 4)
+                            }
+                        }
+                    }
+
                     DisclosureGroup("Study & device details") {
                         if let code = session.protocolCode, !code.isEmpty {
                             LabeledContent("Protocol", value: code)
@@ -1076,6 +1143,17 @@ private struct ScopeSessionScreen: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
+                    Button {
+                        sessionName = session?.experiment ?? ""
+                        renaming = true
+                    } label: { Label("Rename session", systemImage: "pencil") }
+                    .disabled(model.busy || model.active != nil || session == nil)
+
+                    Button {
+                        model.selectedTab = 4
+                    } label: { Label("Add external files", systemImage: "cable.connector") }
+                    .disabled(model.busy || model.active != nil)
+
                     Button("Delete recording", role: .destructive) {
                         deleting = true
                     }
@@ -1117,6 +1195,14 @@ private struct ScopeSessionScreen: View {
                 .padding(20)
                 .background(.regularMaterial)
             }
+        }
+        .alert("Rename session", isPresented: $renaming) {
+            TextField("Session name", text: $sessionName)
+            Button("Cancel", role: .cancel) {}
+            Button("Save") { Task { await model.rename(id, title: sessionName) } }
+                .disabled(sessionName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || sessionName.count > 120)
+        } message: {
+            Text("The new name will also be used for your exported ZIP.")
         }
         .confirmationDialog(
             "Recover saved data?",
