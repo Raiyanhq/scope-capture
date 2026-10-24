@@ -11,6 +11,8 @@
 		641AF444305CB458003054ED /* BluetoothSetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641AF443305CB458003054ED /* BluetoothSetup.swift */; };
 		641AF446305CB4B7003054ED /* ResearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641AF445305CB4B7003054ED /* ResearchView.swift */; };
 		641AF44830619D8B003054ED /* ScopeExperience.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641AF44730619D8B003054ED /* ScopeExperience.swift */; };
+		646B3E61308AC5C8007883D3 /* DevicesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 646B3E60308AC5C8007883D3 /* DevicesView.swift */; };
+		646B3E63308AC5D6007883D3 /* ExternalData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 646B3E62308AC5D6007883D3 /* ExternalData.swift */; };
 		78A9A75A421A5DC749206A6D /* Sources/App/AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1564F1D0EFAC8F18D6AC93F /* Sources/App/AppModel.swift */; };
 		7B7902F41865FD5DBB97A49F /* Sources/Core/Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2022675C702938702DF9FFC0 /* Sources/Core/Core.swift */; };
 		8445EE0FC6D703A64A8C2C84 /* Sources/App/ExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 986C43265860849FCDAD14B8 /* Sources/App/ExportView.swift */; };
@@ -27,9 +29,11 @@
 		2022675C702938702DF9FFC0 /* Sources/Core/Core.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/Core/Core.swift; sourceTree = "<group>"; };
 		4CE6CADF751E2D1450B986D0 /* Sources/App/SensorsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/App/SensorsView.swift; sourceTree = "<group>"; };
 		56CEE783F3A6177BD28D7853 /* Sources/App/SensorHub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/App/SensorHub.swift; sourceTree = "<group>"; };
-		641AF443305CB458003054ED /* BluetoothSetup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothSetup.swift; sourceTree = "<group>"; };
-		641AF445305CB4B7003054ED /* ResearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResearchView.swift; sourceTree = "<group>"; };
-		641AF44730619D8B003054ED /* ScopeExperience.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScopeExperience.swift; sourceTree = "<group>"; };
+		641AF443305CB458003054ED /* BluetoothSetup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/App/BluetoothSetup.swift; sourceTree = "<group>"; };
+		641AF445305CB4B7003054ED /* ResearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/App/ResearchView.swift; sourceTree = "<group>"; };
+		641AF44730619D8B003054ED /* ScopeExperience.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/App/ScopeExperience.swift; sourceTree = "<group>"; };
+		646B3E60308AC5C8007883D3 /* DevicesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/App/DevicesView.swift; sourceTree = "<group>"; };
+		646B3E62308AC5D6007883D3 /* ExternalData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/Core/ExternalData.swift; sourceTree = "<group>"; };
 		7443FFF404D7A4A788F890B0 /* Sources/App/SCOPECaptureApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/App/SCOPECaptureApp.swift; sourceTree = "<group>"; };
 		795A02A63DC9C1E86758E98F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		986C43265860849FCDAD14B8 /* Sources/App/ExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/App/ExportView.swift; sourceTree = "<group>"; };
@@ -62,6 +66,8 @@
 		0D6E4079E36703EBD37C0072 = {
 			isa = PBXGroup;
 			children = (
+				646B3E60308AC5C8007883D3 /* DevicesView.swift */,
+				646B3E62308AC5D6007883D3 /* ExternalData.swift */,
 				641AF445305CB4B7003054ED /* ResearchView.swift */,
 				641AF443305CB458003054ED /* BluetoothSetup.swift */,
 				641AF44730619D8B003054ED /* ScopeExperience.swift */,
@@ -150,11 +156,13 @@
 				641AF44830619D8B003054ED /* ScopeExperience.swift in Sources */,
 				AD9B5D9384F04F13C02FD3A0 /* Sources/App/SCOPECaptureApp.swift in Sources */,
 				B9271E495D8EEE896D6FA1ED /* Sources/App/SensorHub.swift in Sources */,
+				646B3E61308AC5C8007883D3 /* DevicesView.swift in Sources */,
 				B7C4C8A60FA993C2701046D5 /* Sources/App/SensorsView.swift in Sources */,
 				C2859EB31E38825B95F10BA0 /* Sources/App/Views.swift in Sources */,
 				641AF446305CB4B7003054ED /* ResearchView.swift in Sources */,
 				7B7902F41865FD5DBB97A49F /* Sources/Core/Core.swift in Sources */,
 				9F42B79E0EA2B8BEAF2C137C /* Sources/Core/SessionArchive.swift in Sources */,
+				646B3E63308AC5D6007883D3 /* ExternalData.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
