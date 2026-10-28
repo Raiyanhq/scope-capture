@@ -9,8 +9,8 @@ import SwiftUI
 import UIKit
 
 enum ScopeRelease {
-    static let agreementKey = "scope.agreement.2026-09-18"
-    static let policyVersion = "September 18, 2026"
+    static let agreementKey = "scope.agreement.2026-10-28.ble"
+    static let policyVersion = "October 28, 2026"
 
     static var version: String {
         let info = Bundle.main.infoDictionary ?? [:]
@@ -277,9 +277,9 @@ struct ScopeAboutScreen: View {
                 )
 
                 Text(
-                    "External device setup inspects a Bluetooth device’s " +
-                    "services and previews bytes. It does not yet add " +
-                    "external measurements to a recording."
+                    "The Devices tab connects to Bluetooth LE sensors and preserves " +
+                    "selected notification payloads with phone arrival times. " +
+                    "Compatibility and measurement decoding depend on device firmware."
                 )
 
                 Text(
@@ -438,10 +438,11 @@ enum ScopePolicyDocument {
                     "Bluetooth",
                     """
                     Searching discovers nearby advertising Bluetooth LE devices. \
-                    Device names, iOS identifiers, service information, and limited \
-                    previews are held in memory for setup. The setup feature does \
-                    not automatically save this information into research sessions. \
-                    A device report leaves the app only when you choose to share it.
+                    Device labels are saved locally. When Record with sessions is \
+                    enabled, selected notification payloads, phone arrival times, \
+                    device identity details and GATT stream identifiers are saved \
+                    with your research session and included in its export. \
+                    Review the device and streams before collecting or sharing data.
                     """
                 ),
                 (
@@ -550,10 +551,11 @@ enum ScopePolicyDocument {
                     "External devices",
                     """
                     Connect only to devices you are authorized to use. \
-                    Compatibility depends on firmware and the device’s Bluetooth \
-                    interface. The current setup feature provides discovery and \
-                    diagnostic previews, not a validated external sensor \
-                    recording pipeline.
+                    Bluetooth compatibility depends on device firmware, accessible \
+                    GATT characteristics and any required authorization. Received \
+                    payloads are preserved with phone receipt times; sample framing, \
+                    calibration and completeness require device-specific validation. \
+                    Phone sampling settings do not reconfigure external hardware.
                     """
                 ),
                 (
