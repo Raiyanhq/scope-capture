@@ -33,7 +33,7 @@
     <true/>
 
     <key>NSBluetoothAlwaysUsageDescription</key>
-    <string>SCOPE uses Bluetooth to discover and connect to your research sensor device and inspect the data it transmits.</string>
+    <string>SCOPE uses Bluetooth to find and connect to research sensors you choose. When Bluetooth recording is enabled, received sensor payloads and device details are saved locally with your research session and included when you export it.</string>
 
     <key>NSLocationWhenInUseUsageDescription</key>
     <string>Record coordinates and location accuracy only when you select Location for a research session. Location data stays on this device until you export it.</string>

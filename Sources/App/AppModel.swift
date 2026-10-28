@@ -26,6 +26,7 @@ final class AppModel: ObservableObject {
     @Published var exportItem: ExportItem?
     @Published var selectedTab = 0
     let hub = SensorHub()
+    weak var bluetooth: BLERecorder?
     private var store: LocalStore?
     private var buffer: SampleBuffer?
     private var timer: Task<Void, Never>?
@@ -63,6 +64,40 @@ final class AppModel: ObservableObject {
     var available: [Sensor] { hub.available }
     var status: String { busy ? "Saving" : paused ? "Paused" : "Recording" }
 
+    func rename(_ id: UUID, title: String) async {
+        guard active == nil, !busy, let store else { return }
+        busy = true; defer { busy = false }
+        do { try await store.rename(id, title: title); await refresh() }
+        catch { message = AppMessage(title: "Could not rename session", detail: error.localizedDescription) }
+    }
+
+    @discardableResult
+    func importExternal(_ urls: [URL], profile: ExternalDeviceProfile, sessionID: UUID?, title: String,
+                        source: String = "document_picker") async -> Bool {
+        guard active == nil, !busy, let store else {
+            message = AppMessage(title: "Finish recording first", detail: "Finish your phone session before attaching external files.")
+            return false
+        }
+        busy = true; defer { busy = false }
+        do {
+            let id: UUID
+            if let sessionID { id = sessionID }
+            else {
+                let created = try await store.createExternalSession(title: title,
+                    device: "\(hub.deviceDescription) · hardware \(hub.hardwareModel)", os: UIDevice.current.systemVersion,
+                    app: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "Unknown")
+                id = created.id
+            }
+            try await store.attachExternalFiles(urls, to: id, device: profile, source: source)
+            await refresh()
+            return true
+        } catch {
+            await refresh()
+            message = AppMessage(title: "Import did not complete", detail: error.localizedDescription + " Source files remain unchanged.")
+            return false
+        }
+    }
+
     func refresh() async {
         hub.refreshPermissions()
         guard let store else { return }
@@ -82,6 +117,11 @@ final class AppModel: ObservableObject {
         }
         busy = true; defer { busy = false }
         let sink = SampleBuffer()
+        try await bluetooth?.prepareLinkedCapture()
+        defer { bluetooth?.discardPreparedCapture() }
+        if bluetooth?.includeInSessions == true, !foreground {
+            throw RecorderError(message: "Keep SCOPE in the foreground before starting a Bluetooth recording.")
+        }
         let version = (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String) ?? "Unknown"
         let build = (Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String) ?? "Unknown"
         let recordedAppVersion = "\(version) (\(build))"
@@ -91,6 +131,10 @@ final class AppModel: ObservableObject {
             device: "\(hub.deviceDescription) · hardware \(hub.hardwareModel)", os: UIDevice.current.systemVersion, app: recordedAppVersion,
             plannedSeconds: plannedSeconds, buffer: sink)
         buffer = sink; active = session; elapsed = 0; paused = !foreground
+        bluetooth?.beginLinkedCapture(sessionID: session.id)
+        if bluetooth?.capturing == true {
+            sink.event("BLE_CAPTURE_START", "Phone receive times are stored in BLE packets.jsonl. Manual phone-sensor pauses do not pause BLE. External sample rate is controlled by device firmware.")
+        }
         nextCheckpointElapsed = 1
         self.keepAwake = keepAwake
         previousIdleSetting = UIApplication.shared.isIdleTimerDisabled
@@ -190,9 +234,11 @@ final class AppModel: ObservableObject {
         hub.stop(); sink.seal(); timer?.cancel(); timer = nil
         UIApplication.shared.isIdleTimerDisabled = previousIdleSetting
         beginBackgroundTask()
+        let bluetoothCapture = await bluetooth?.finishLinkedCapture(sessionID: session.id)
         do {
             _ = try await store.finish(id: session.id, buffer: sink, endElapsed: end)
             active = nil; buffer = nil; paused = false; busy = false
+            if let bluetoothCapture { await attachBluetooth(bluetoothCapture) }
             await refresh(); selectedTab = 1
         } catch {
             try? await store.fail(id: session.id, message: error.localizedDescription)
@@ -205,12 +251,27 @@ final class AppModel: ObservableObject {
     private func abort(_ detail: String) async {
         guard let active else { return }
         busy = true; hub.stop(); buffer?.seal(); timer?.cancel(); timer = nil
+        _ = await bluetooth?.finishLinkedCapture(sessionID: active.id, reason: detail)
         UIApplication.shared.isIdleTimerDisabled = previousIdleSetting
         do { try await store?.fail(id: active.id, message: detail) }
         catch { catalogIssues.append("Could not persist failure state: " + error.localizedDescription) }
         self.active = nil; buffer = nil; paused = false; busy = false
         message = AppMessage(title: "Recording stopped", detail: detail + " Saved data remains on this device. Recover the session before exporting.")
         await refresh(); selectedTab = 1
+    }
+
+    private func attachBluetooth(_ capture: BLECaptureResult) async {
+        let success = await importExternal(capture.files, profile: capture.profile,
+            sessionID: capture.sessionID, title: "Bluetooth recording", source: "ble_gatt_capture")
+        if success {
+            await Task.detached(priority: .utility) {
+                try? FileManager.default.removeItem(at: capture.folder)
+            }.value
+            if let issue = bluetooth?.issue {
+                message = AppMessage(title: "Review Bluetooth recording",
+                    detail: issue + " Received files were saved with the session. Review capture.json before analysis.")
+            }
+        }
     }
     func recover(_ id: UUID) async {
         guard active == nil, !busy, let store else { return }
@@ -219,7 +280,7 @@ final class AppModel: ObservableObject {
         catch { message = AppMessage(title: "Recovery unavailable", detail: error.localizedDescription + " The original files have not been deleted.") }
     }
     func export(_ id: UUID) async {
-        guard active == nil, !busy, let store else { return }
+        guard active == nil, !busy, exportItem == nil, let store else { return }
         busy = true; defer { busy = false }
         do {
             let url = try await store.export(id)

@@ -118,7 +118,7 @@ private struct ScopeDashboardIntro: View {
 
 struct RootView: View {
     @EnvironmentObject private var model: AppModel
-    @EnvironmentObject private var wired: WiredAccessoryController
+    @EnvironmentObject private var bluetooth: BLERecorder
     @Environment(\.scenePhase) private var scenePhase
 
     @AppStorage(ScopeUI.agreementKey)
@@ -171,7 +171,7 @@ struct RootView: View {
                     .tag(3)
 
                     NavigationStack { DevicesView() }
-                        .tabItem { Label("Devices", systemImage: "cable.connector") }
+                        .tabItem { Label("Devices", systemImage: "dot.radiowaves.left.and.right") }
                         .tag(4)
                 }
             } else {
@@ -203,8 +203,9 @@ struct RootView: View {
         }
         .onChange(of: scenePhase) { _, phase in
             model.sceneChanged(phase)
-            if phase != .active && (wired.capturing || wired.connectedID != nil) {
-                wired.stop(reason: "App left the foreground. Capture stopped; reconnect before continuing.")
+            if phase != .active {
+                bluetooth.stopScan()
+                bluetooth.disconnect(reason: bluetooth.capturing ? "SCOPE left the foreground. Bluetooth capture ended; finish this session before recording again." : nil)
             }
         }
         .alert(item: $model.message) { item in
@@ -371,7 +372,7 @@ private struct ScopeRecordScreen: View {
                                 .frame(maxWidth: .infinity, minHeight: 44)
                         }
                         Button { model.selectedTab = 4 } label: {
-                            Label("Devices", systemImage: "cable.connector")
+                            Label("Devices", systemImage: "dot.radiowaves.left.and.right")
                                 .frame(maxWidth: .infinity, minHeight: 44)
                         }
                     }
@@ -485,11 +486,11 @@ private struct ScopeRecordScreen: View {
                     model.selectedTab = 4
                 } label: {
                     Image(
-                        systemName: "cable.connector"
+                        systemName: "dot.radiowaves.left.and.right"
                     )
                     .frame(minWidth: 44, minHeight: 44)
                 }
-                .accessibilityLabel("External device setup")
+                .accessibilityLabel("Bluetooth devices")
                 .disabled(model.active != nil || model.busy)
 
                 Button {
@@ -1201,7 +1202,7 @@ private struct ScopeSessionScreen: View {
 
                     Button {
                         model.selectedTab = 4
-                    } label: { Label("Add external files", systemImage: "cable.connector") }
+                    } label: { Label("Bluetooth devices", systemImage: "dot.radiowaves.left.and.right") }
                     .disabled(model.busy || model.active != nil)
 
                     Button("Delete recording", role: .destructive) {
