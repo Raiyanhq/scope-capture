@@ -33,6 +33,13 @@ enum Sensor: String, Codable, CaseIterable, Identifiable, Sendable {
     }
     var requestedHz: Double? {
         switch self {
+        case .accelerometer, .gyroscope, .deviceMotion: return 100
+        case .magnetometer: return 25
+        default: return nil
+        }
+    }
+    var legacyRequestedHz: Double? {
+        switch self {
         case .accelerometer, .gyroscope, .deviceMotion: return 50
         case .magnetometer: return 25
         default: return nil
@@ -129,6 +136,8 @@ struct EvidenceFile: Codable, Sendable {
 
 struct StreamSummary: Codable, Identifiable, Sendable {
     var sensor: Sensor
+    // Persist the rate so upgrading the app cannot relabel old 50 Hz data.
+    var requestedRateHz: Double? = nil
     var samples = 0
     var firstElapsed: Double? = nil
     var lastElapsed: Double? = nil
@@ -146,7 +155,7 @@ struct StreamSummary: Codable, Identifiable, Sendable {
         if let last = lastElapsed {
             let gap = max(0, elapsed - last)
             largestGapSeconds = max(largestGapSeconds, gap)
-            if let hz = sensor.requestedHz {
+            if let hz = requestedRateHz ?? sensor.legacyRequestedHz {
                 coveredSeconds += min(gap, 1 / hz)
                 if gap > 2.5 / hz { gapsOverThreshold += 1 }
             }
@@ -185,8 +194,11 @@ struct ResearchSession: Codable, Identifiable, Sendable {
     var summaries: [StreamSummary]? = nil
     var evidence: [EvidenceFile]? = nil
     var formatNotes: [String: String]? = nil
+    var externalFiles: [ExternalFileRecord]? = nil
     var totalSamples: Int { files.reduce(0) { $0 + $1.samples } }
-    var totalBytes: Int64 { files.reduce(0) { $0 + $1.bytes } }
+    var totalBytes: Int64 {
+        files.reduce(0) { $0 + $1.bytes } + (externalFiles ?? []).reduce(0) { $0 + $1.bytes }
+    }
     var duration: Double { durationSeconds ?? max(0, (endedAt ?? lastCheckpoint).timeIntervalSince(startedAt)) }
     var warningCount: Int { events.filter(\.isWarning).count }
     var needsReview: Bool {
@@ -363,6 +375,17 @@ struct CSVScan {
 }
 
 enum SessionFiles {
+    static func exportName(_ title: String) -> String {
+        let forbidden = CharacterSet.controlCharacters.union(CharacterSet(charactersIn: "/\\:*?\"<>|"))
+        let cleaned = title.components(separatedBy: forbidden).filter { !$0.isEmpty }.joined(separator: "_")
+            .trimmingCharacters(in: .whitespacesAndNewlines.union(CharacterSet(charactersIn: ".")))
+        var name = ""
+        for character in cleaned {
+            guard name.utf8.count + String(character).utf8.count <= 160 else { break }
+            name.append(character)
+        }
+        return name.isEmpty ? "Research recording" : name
+    }
     static func safeURL(root: URL, relative: String) throws -> URL {
         let parts = relative.split(separator: "/", omittingEmptySubsequences: false)
         guard !relative.isEmpty, !relative.hasPrefix("/"),
@@ -455,8 +478,8 @@ struct StorageSnapshot: Sendable {
 // MARK: - Local store (all file work is off the main actor)
 
 actor LocalStore {
-    private let root: URL
-    private var current: ResearchSession?
+    let root: URL
+    var current: ResearchSession?
     private var indexes: [String: Int] = [:]
     static let minimumFreeBytes: Int64 = 50 * 1024 * 1024
     init(root: URL) throws {
@@ -475,15 +498,15 @@ actor LocalStore {
         let oldExports = FileManager.default.temporaryDirectory.appendingPathComponent("ResearchExports")
         if FileManager.default.fileExists(atPath: oldExports.path) { try? FileManager.default.removeItem(at: oldExports) }
     }
-    private func folder(_ id: UUID) -> URL { root.appendingPathComponent(id.uuidString, isDirectory: true) }
+    func folder(_ id: UUID) -> URL { root.appendingPathComponent(id.uuidString, isDirectory: true) }
     private func manifest(_ id: UUID) -> URL { folder(id).appendingPathComponent("manifest.json") }
-    private func persist(_ session: ResearchSession) throws {
+    func persist(_ session: ResearchSession) throws {
         try ManifestCodec.encoder().encode(session).write(to: manifest(session.id), options: .atomic)
     }
-    private func load(_ id: UUID) throws -> ResearchSession {
+    func load(_ id: UUID) throws -> ResearchSession {
         let url = try SessionFiles.safeURL(root: root, relative: "\(id.uuidString)/manifest.json")
         let session = try ManifestCodec.decoder().decode(ResearchSession.self, from: Data(contentsOf: url))
-        guard session.id == id, [1, 2].contains(session.schemaVersion),
+        guard session.id == id, [1, 2, 3].contains(session.schemaVersion),
               Set(session.files.map(\.path)).count == session.files.count else {
             throw RecorderError(message: "Incompatible or inconsistent manifest.")
         }
@@ -513,6 +536,16 @@ actor LocalStore {
                 guard let id = UUID(uuidString: url.lastPathComponent) else { continue }
                 do {
                     var session = try load(id)
+                    if id != current?.id, session.state.exportable {
+                        let listed = Set((session.externalFiles ?? []).map(\.path))
+                        let orphan = try allFiles(id).contains { $0.hasPrefix("external/") && !listed.contains($0) }
+                        if orphan {
+                            session.state = .incomplete
+                            session.events.append(SessionEvent(time: Date(), kind: "EXTERNAL_IMPORT_INTERRUPTED",
+                                detail: "Unlisted external bytes were found. Recovery will retain these as evidence.", severity: "warning"))
+                            try persist(session)
+                        }
+                    }
                     if id != current?.id && [.recording, .finalizing].contains(session.state) {
                         session.state = .interrupted
                         session.events.append(SessionEvent(time: Date(), kind: "UNCLEAN_EXIT",
@@ -537,17 +570,17 @@ actor LocalStore {
             throw RecorderError(message: "At least 100 MB of free storage is required.")
         }
         let id = UUID(); try FileManager.default.createDirectory(at: folder(id), withIntermediateDirectories: false)
-        let session = ResearchSession(schemaVersion: 2, id: id, experiment: experiment,
+        let session = ResearchSession(schemaVersion: 3, id: id, experiment: experiment,
             participant: participant, notes: notes, startedAt: buffer.anchorDate, endedAt: nil,
             lastCheckpoint: buffer.anchorDate, device: device, osVersion: os, appVersion: app,
             selected: selected, available: available, state: .recording, protocolCode: protocolCode,
             durationSeconds: 0, plannedSeconds: plannedSeconds,
-            summaries: selected.map { StreamSummary(sensor: $0) }, evidence: [], formatNotes: [
+            summaries: selected.map { StreamSummary(sensor: $0, requestedRateHz: $0.requestedHz) }, evidence: [], formatNotes: [
                 "clock": "elapsed_s is measurement time relative to session start; utc_epoch_s uses the same anchor. received_elapsed_s is callback arrival time. Raw device uptime is not exported.",
                 "steps": "run_cumulative_steps counts steps within collector_run. Do not add rows; use the maximum count per run. Historical reconciliation is not performed.",
                 "altitude": "relative_altitude_m resets at each collector_run.",
                 "coverage": "For requested-rate sensors, sum min(inter-sample interval, requested period), divided by session duration. This conservative observed-time estimate includes pauses in the denominator and is not a guarantee of physical sample completeness.",
-                "rates": "accelerometer=50 Hz; gyroscope=50 Hz; deviceMotion=50 Hz; magnetometer=25 Hz requested. Other sensors are event-driven.",
+                "rates": "accelerometer=100 Hz; gyroscope=100 Hz; deviceMotion=100 Hz; magnetometer=25 Hz requested. Other sensors are event-driven. External rates are determined by the device.",
                 "referenceFrame": "Device motion xArbitraryZVertical. Units are in column names. Magnetometer is uncalibrated. Negative location accuracy/speed/course values are unavailable sentinels."
             ])
         try persist(session); current = session; indexes = [:]
@@ -617,9 +650,11 @@ actor LocalStore {
     }
     private func scanFiles(_ id: UUID, repair: Bool) throws -> ([FileRecord], [StreamSummary]) {
         var records: [FileRecord] = []; var summaries: [Sensor: StreamSummary] = [:]
+        let saved = try load(id)
         for (sensor, path) in try csvPaths(id) {
             let url = try SessionFiles.safeURL(root: folder(id), relative: path)
-            var summary = summaries[sensor] ?? StreamSummary(sensor: sensor)
+            var summary = summaries[sensor] ?? StreamSummary(sensor: sensor,
+                requestedRateHz: saved.summary(sensor)?.requestedRateHz ?? sensor.legacyRequestedHz)
             let scan = try SessionFiles.scan(url, relative: path, sensor: sensor, allowPartialTail: repair, summary: &summary)
             if scan.tailBytes > 0 {
                 // Preserve the entire unmodified original before repairing an unfinished CSV.
@@ -646,7 +681,7 @@ actor LocalStore {
         session.durationSeconds = endElapsed
         session.endedAt = session.startedAt.addingTimeInterval(endElapsed)
         session.lastCheckpoint = Date()
-        session.state = session.totalSamples > 0 ? .localComplete : .incomplete
+        session.state = session.totalSamples > 0 || !(session.externalFiles ?? []).isEmpty ? .localComplete : .incomplete
         for sensor in session.selected where session.count(sensor) == 0 {
             session.events.append(SessionEvent(time: Date(), kind: "NO_SAMPLES",
                 detail: "No samples were saved for \(sensor.title).", elapsedSeconds: endElapsed,
@@ -671,6 +706,15 @@ actor LocalStore {
         let backupRoot = folder(id).appendingPathComponent("recovery-originals")
         try FileManager.default.createDirectory(at: backupRoot, withIntermediateDirectories: true)
         try FileManager.default.copyItem(at: manifest(id), to: backupRoot.appendingPathComponent("manifest-\(UUID().uuidString).json"))
+        // A crash between an external-copy completion and the atomic manifest
+        // commit can leave unlisted bytes. Preserve those as recovery evidence.
+        let listedExternal = Set((session.externalFiles ?? []).map(\.path))
+        for path in try allFiles(id) where path.hasPrefix("external/") && !listedExternal.contains(path) {
+            let original = try SessionFiles.safeURL(root: folder(id), relative: path)
+            let backup = try SessionFiles.safeURL(root: folder(id), relative: "recovery-originals/orphan-\(UUID().uuidString)/\(path)")
+            try FileManager.default.createDirectory(at: backup.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try FileManager.default.moveItem(at: original, to: backup)
+        }
         let (records, summaries) = try scanFiles(id, repair: true)
         session.files = records; session.summaries = summaries
         session.state = .recovered; session.recovered = true; session.endedAt = nil
@@ -710,7 +754,8 @@ actor LocalStore {
         guard current?.id != id else { throw RecorderError(message: "Finish recording before verification.") }
         let session = try load(id)
         guard session.state.exportable else { throw RecorderError(message: "Recover this session before exporting.") }
-        let expectedPaths = session.files.map(\.path) + (session.evidence ?? []).map(\.path) + ["manifest.json"]
+        let expectedPaths = session.files.map(\.path) + (session.evidence ?? []).map(\.path)
+            + (session.externalFiles ?? []).map(\.path) + ["manifest.json"]
         guard Set(expectedPaths).count == expectedPaths.count,
               try allFiles(id) == Set(expectedPaths) else {
             throw RecorderError(message: "The session contains missing or unlisted files.")
@@ -728,6 +773,13 @@ actor LocalStore {
             let (bytes, hash) = try SessionFiles.fingerprint(SessionFiles.safeURL(root: folder(id), relative: file.path))
             guard bytes == file.bytes, hash == file.sha256 else { throw RecorderError(message: "Recovery evidence mismatch.") }
         }
+        for file in session.externalFiles ?? [] {
+            guard file.path.hasPrefix("external/") else { throw RecorderError(message: "Invalid external file path.") }
+            let (bytes, hash) = try SessionFiles.fingerprint(SessionFiles.safeURL(root: folder(id), relative: file.path))
+            guard bytes == file.bytes, hash == file.sha256 else {
+                throw RecorderError(message: "External file integrity mismatch: \(file.originalName)")
+            }
+        }
     }
     func export(_ id: UUID) throws -> URL {
         guard current == nil else { throw RecorderError(message: "Finish recording before exporting.") }
@@ -740,7 +792,9 @@ actor LocalStore {
         }
         let base = FileManager.default.temporaryDirectory.appendingPathComponent("ResearchExports")
         try FileManager.default.createDirectory(at: base, withIntermediateDirectories: true)
-        let output = base.appendingPathComponent("Session-\(id.uuidString)-\(UUID().uuidString.prefix(8)).zip")
+        let exportFolder = base.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: exportFolder, withIntermediateDirectories: false)
+        let output = exportFolder.appendingPathComponent(SessionFiles.exportName(session.experiment) + ".zip")
         let staging = base.appendingPathComponent("staging-\(UUID().uuidString)", isDirectory: true)
         defer { try? FileManager.default.removeItem(at: staging) }
         var source = folder(id)
@@ -765,7 +819,8 @@ actor LocalStore {
             try ManifestCodec.encoder().encode(portable).write(to: staging.appendingPathComponent("manifest.json"), options: .atomic)
             source = staging
         }
-        let paths = session.files.map(\.path) + (session.schemaVersion == 1 ? [] : (session.evidence ?? []).map(\.path)) + ["manifest.json"]
+        let paths = session.files.map(\.path) + (session.schemaVersion == 1 ? [] : (session.evidence ?? []).map(\.path))
+            + (session.externalFiles ?? []).map(\.path) + ["manifest.json"]
         do { try SessionArchive.write(root: source, paths: paths, output: output) }
         catch { throw RecorderError(message: "ZIP creation failed: \(error.localizedDescription) Your session remains saved. Check available storage and retry.") }
         return output
@@ -802,7 +857,9 @@ actor LocalStore {
     }
     func cleanExport(_ url: URL) {
         let base = FileManager.default.temporaryDirectory.appendingPathComponent("ResearchExports").standardizedFileURL
-        guard url.deletingLastPathComponent().standardizedFileURL == base else { return }
-        try? FileManager.default.removeItem(at: url)
+        let parent = url.deletingLastPathComponent().standardizedFileURL
+        guard parent.deletingLastPathComponent() == base,
+              UUID(uuidString: parent.lastPathComponent) != nil else { return }
+        try? FileManager.default.removeItem(at: parent)
     }
 }

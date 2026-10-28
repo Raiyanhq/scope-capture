@@ -202,14 +202,14 @@ final class SensorHub: NSObject, ObservableObject, @preconcurrency CLLocationMan
             if let error { sink.sensorError(sensor, run: run, message: error.localizedDescription) }
         }
         if selected.contains(.accelerometer) {
-            motion.accelerometerUpdateInterval = 1 / 50
+            motion.accelerometerUpdateInterval = 1.0 / (Sensor.accelerometer.requestedHz ?? 100)
             motion.startAccelerometerUpdates(to: queue) { data, error in
                 report(.accelerometer, error)
                 if let data { accept(.accelerometer, data.timestamp, [data.acceleration.x, data.acceleration.y, data.acceleration.z]) }
             }
         }
         if selected.contains(.gyroscope) {
-            motion.gyroUpdateInterval = 1 / 50
+            motion.gyroUpdateInterval = 1.0 / (Sensor.gyroscope.requestedHz ?? 100)
             motion.startGyroUpdates(to: queue) { data, error in
                 report(.gyroscope, error)
                 if let data { accept(.gyroscope, data.timestamp, [data.rotationRate.x, data.rotationRate.y, data.rotationRate.z]) }
@@ -223,7 +223,7 @@ final class SensorHub: NSObject, ObservableObject, @preconcurrency CLLocationMan
             }
         }
         if selected.contains(.deviceMotion) {
-            motion.deviceMotionUpdateInterval = 1 / 50
+            motion.deviceMotionUpdateInterval = 1.0 / (Sensor.deviceMotion.requestedHz ?? 100)
             motion.startDeviceMotionUpdates(using: .xArbitraryZVertical, to: queue) { data, error in
                 report(.deviceMotion, error)
                 guard let data else { return }

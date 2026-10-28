@@ -138,7 +138,7 @@ private final class ZIPActivityItem: NSObject, UIActivityItemSource {
         _ activityViewController: UIActivityViewController,
         subjectForActivityType activityType: UIActivity.ActivityType?
     ) -> String {
-        "SCOPE research session"
+        url.deletingPathExtension().lastPathComponent
     }
 }
 

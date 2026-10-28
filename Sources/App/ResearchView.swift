@@ -29,7 +29,7 @@ struct ResearchView: View {
     @State private var latest: [Sensor: SampleRow] = [:]
     @State private var now: Double = 0
 
-    private let required: [Sensor] = [
+    private let requiredSensors: [Sensor] = [
         .accelerometer,
         .gyroscope
     ]
@@ -48,7 +48,7 @@ struct ResearchView: View {
     }
 
     private var ready: Bool {
-        required.allSatisfy {
+        requiredSensors.allSatisfy {
             hub.enabled.contains($0) && hub.ready($0)
         }
     }
@@ -145,7 +145,7 @@ struct ResearchView: View {
                 DisclosureGroup("About this dataset") {
                     Text(
                         "Records separate accelerometer and gyroscope streams " +
-                        "at a requested 50 Hz. Actual sampling can vary. " +
+                        "at a requested 100 Hz. Actual sampling can vary. " +
                         "The manifest records setup, timestamps, interruptions " +
                         "and quality information. ZIP export uses the existing " +
                         "verified export workflow."
@@ -318,7 +318,7 @@ struct ResearchView: View {
 
     private var sensorSection: some View {
         Section {
-            ForEach(required) { sensor in
+            ForEach(requiredSensors) { sensor in
                 HStack {
                     VStack(
                         alignment: .leading,
@@ -630,7 +630,7 @@ struct ResearchView: View {
                     "attachment": attachment,
                     "initial_orientation": orientation,
                     "placement_source": "researcher_selected",
-                    "requested_rate_hz": "50",
+                    "requested_rate_hz": "100",
                     "apple_detection_status":
                         "unavailable_not_integrated",
                     "ground_truth_status": "unreviewed",
@@ -654,7 +654,7 @@ struct ResearchView: View {
                     participant: participant,
                     notes: notes,
                     protocolCode: "SCOPE_IMU_V1",
-                    selected: required,
+                    selected: requiredSensors,
                     plannedSeconds: nil,
                     keepAwake: true
                 )
